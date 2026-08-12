@@ -1,28 +1,44 @@
 @import 'tailwindcss';
 
 @theme {
+  /* Polices — DA : Intro Rust (titres) → approximée par Fredoka (webfont libre la plus proche),
+     Nunito (corps, police exacte de la charte). */
   --font-sans: 'Nunito', ui-sans-serif, system-ui, sans-serif;
-  --font-display: 'Fraunces', ui-serif, Georgia, serif;
+  --font-display: 'Fredoka', 'Nunito', ui-sans-serif, system-ui, sans-serif;
 
-  /* Brand palette — green primary, warm accents (jaune/rouge des pastilles) */
-  --color-forest-50: #f2f8f1;
-  --color-forest-100: #dcecda;
-  --color-forest-200: #b9d9b6;
-  --color-forest-300: #8dbe89;
-  --color-forest-400: #5f9d5c;
-  --color-forest-500: #3f8a3d;
-  --color-forest-600: #2f6d30;
-  --color-forest-700: #275729;
-  --color-forest-800: #214523;
-  --color-forest-900: #1c3a1f;
+  /* ===== Palette exacte — Identité visuelle Rex & Manon =====
+     #FD5900 orange · #FEEAD4 crème · #AACF31 vert lime · #005A2F vert forêt */
 
-  --color-sun-400: #f5c14b;
-  --color-sun-500: #eaa92b;
+  /* Vert forêt (couleur principale) — 600 = #005A2F */
+  --color-forest-50: #eef6f1;
+  --color-forest-100: #d8eadf;
+  --color-forest-200: #aed4bd;
+  --color-forest-300: #6fad8a;
+  --color-forest-400: #2f8259;
+  --color-forest-500: #086a3b;
+  --color-forest-600: #005a2f;
+  --color-forest-700: #004a28;
+  --color-forest-800: #003a20;
+  --color-forest-900: #002816;
 
-  --color-brick-400: #e2664f;
-  --color-brick-500: #cf4a34;
+  /* Orange (Intro Rust / accents) — 500 = #FD5900 */
+  --color-orange-100: #ffe7d6;
+  --color-orange-200: #ffcaab;
+  --color-orange-300: #ffa46f;
+  --color-orange-400: #ff7c33;
+  --color-orange-500: #fd5900;
+  --color-orange-600: #cf4900;
 
-  --color-cream: #fbf8f1;
+  /* Vert lime (accent pastille) — 400 = #AACF31 */
+  --color-lime-200: #e2efb6;
+  --color-lime-300: #cae584;
+  --color-lime-400: #aacf31;
+  --color-lime-500: #8cb020;
+
+  /* Crème / pêche (fond) */
+  --color-cream: #feead4;
+  --color-cream-soft: #fff4e6;
+  --color-cream-white: #fffaf3;
 }
 
 html {
@@ -33,7 +49,22 @@ body {
   @apply bg-cream text-forest-900 font-sans antialiased;
 }
 
-/* Reusable helpers */
+/* Conteneur centré */
 @utility container-page {
   @apply mx-auto w-full max-w-6xl px-5 sm:px-8;
+}
+
+/* Feston / vague type store — bord décoratif de la charte.
+   Bande dont le bord bas est découpé en demi-cercles (bumps). */
+@utility scallop-bottom {
+  -webkit-mask: radial-gradient(22px at 50% 0, transparent 98%, #000) repeat-x 50% 100% / 44px 22px;
+  mask: radial-gradient(22px at 50% 0, transparent 98%, #000) repeat-x 50% 100% / 44px 22px;
+}
+
+/* Carrousel : masque la barre de défilement */
+.no-scrollbar {
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
 }

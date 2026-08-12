@@ -1,13 +1,9 @@
 import { useEffect, useState } from 'react'
-
-const links = [
-  { href: '#apropos', label: 'À propos' },
-  { href: '#services', label: 'Mes balades' },
-  { href: '#zones', label: 'Zone & tarifs' },
-  { href: '#contact', label: 'Contact' },
-]
+import { useContent } from '../ContentContext'
 
 export default function Navbar() {
+  const { nav } = useContent()
+  const links = nav.links
   const [scrolled, setScrolled] = useState(false)
   const [open, setOpen] = useState(false)
 
@@ -24,12 +20,13 @@ export default function Navbar() {
         scrolled ? 'bg-cream/90 shadow-sm backdrop-blur' : 'bg-transparent'
       }`}
     >
-      <nav className="container-page flex items-center justify-between py-4">
-        <a href="#top" className="flex items-center gap-2 font-display text-xl font-600 text-forest-700">
-          <span aria-hidden className="grid size-9 place-items-center rounded-full bg-forest-600 text-cream">
-            🐾
-          </span>
-          Rex&nbsp;<span className="text-brick-500">&</span>&nbsp;Manon
+      <nav className="container-page flex items-center justify-between py-3">
+        <a href="#top" className="flex items-center" aria-label="Rex & Manon — accueil">
+          <img
+            src="/brand/logo-horizontal-couleur.svg"
+            alt="Rex & Manon"
+            className="h-9 w-auto sm:h-10"
+          />
         </a>
 
         <ul className="hidden items-center gap-8 md:flex">
@@ -37,7 +34,7 @@ export default function Navbar() {
             <li key={l.href}>
               <a
                 href={l.href}
-                className="text-sm font-600 text-forest-800 transition-colors hover:text-forest-500"
+                className="text-sm font-700 text-forest-800 transition-colors hover:text-orange-500"
               >
                 {l.label}
               </a>
@@ -46,9 +43,9 @@ export default function Navbar() {
           <li>
             <a
               href="#contact"
-              className="rounded-full bg-forest-600 px-5 py-2 text-sm font-700 text-cream shadow-sm transition-transform hover:-translate-y-0.5 hover:bg-forest-700"
+              className="rounded-full bg-orange-500 px-5 py-2 text-sm font-700 text-white shadow-sm transition-transform hover:-translate-y-0.5 hover:bg-orange-600"
             >
-              Me contacter
+              {nav.cta}
             </a>
           </li>
         </ul>
@@ -71,7 +68,7 @@ export default function Navbar() {
                 <a
                   href={l.href}
                   onClick={() => setOpen(false)}
-                  className="block rounded-lg px-2 py-3 font-600 text-forest-800 hover:bg-forest-50"
+                  className="block rounded-lg px-2 py-3 font-700 text-forest-800 hover:bg-forest-50"
                 >
                   {l.label}
                 </a>

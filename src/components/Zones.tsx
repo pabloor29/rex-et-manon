@@ -1,63 +1,51 @@
-const zones = [
-  {
-    radius: '0 – 10 km',
-    label: 'Autour de Carcassonne',
-    price: '15',
-    featured: false,
-    perks: ['Prise en charge à domicile', 'Balade éducative', 'Petit compte-rendu'],
-  },
-  {
-    radius: '10 – 20 km',
-    label: 'Proche périphérie',
-    price: '20',
-    featured: true,
-    perks: ['Prise en charge à domicile', 'Balade éducative', 'Petit compte-rendu'],
-  },
-  {
-    radius: '20 – 30 km',
-    label: 'Villages alentours',
-    price: '25',
-    featured: false,
-    perks: ['Prise en charge à domicile', 'Balade éducative', 'Petit compte-rendu'],
-  },
-]
+import { useEffect, useState } from 'react'
+import { DEFAULT_OFFERS, normalizeOffers, type Offers } from '../offers'
+import { useContent } from '../ContentContext'
 
 export default function Zones() {
+  const { zones: zonesText } = useContent()
+  const [offers, setOffers] = useState<Offers>(DEFAULT_OFFERS)
+
+  // Charge les offres publiées (Supabase via /api/offres). Sans API → valeurs par défaut.
+  useEffect(() => {
+    let alive = true
+    fetch('/api/offres')
+      .then((r) => (r.ok ? r.json() : Promise.reject()))
+      .then((data) => alive && setOffers(normalizeOffers(data)))
+      .catch(() => {})
+    return () => {
+      alive = false
+    }
+  }, [])
+
   return (
     <section id="zones" className="py-20 sm:py-28">
       <div className="container-page">
         <div className="mx-auto max-w-2xl text-center">
-          <span className="text-sm font-800 tracking-wide text-forest-500 uppercase">
-            Zone d'intervention & tarifs
-          </span>
-          <h2 className="mt-3 font-display text-3xl font-600 text-forest-800 sm:text-4xl">
-            J'interviens autour de Carcassonne
-          </h2>
-          <p className="mt-4 text-lg text-forest-900/70">
-            Le tarif dépend de la distance depuis Carcassonne. J'organise mes tournées par secteur
-            pour venir chercher votre chien directement chez vous.
-          </p>
+          <span className="text-sm font-800 tracking-wide text-orange-500 uppercase">{zonesText.eyebrow}</span>
+          <h2 className="mt-3 font-display text-3xl font-600 text-forest-700 sm:text-4xl">{zonesText.title}</h2>
+          <p className="mt-4 text-lg text-forest-900/70">{zonesText.subtitle}</p>
         </div>
 
         <div className="mt-14 grid gap-6 lg:grid-cols-3">
-          {zones.map((z) => (
+          {offers.zones.map((z) => (
             <div
               key={z.radius}
               className={`relative flex flex-col rounded-3xl p-8 transition-transform hover:-translate-y-1 ${
                 z.featured
-                  ? 'bg-forest-600 text-cream shadow-xl ring-4 ring-forest-200'
-                  : 'bg-white text-forest-900 shadow-md ring-1 ring-forest-100'
+                  ? 'bg-forest-600 text-cream-white shadow-xl ring-4 ring-lime-400/50'
+                  : 'bg-cream-white text-forest-900 shadow-md ring-1 ring-forest-100'
               }`}
             >
               {z.featured && (
-                <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-sun-400 px-4 py-1 text-xs font-800 text-forest-800">
+                <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-orange-500 px-4 py-1 text-xs font-800 text-white">
                   Le plus demandé
                 </span>
               )}
-              <p className={`font-display text-2xl font-600 ${z.featured ? 'text-cream' : 'text-forest-700'}`}>
+              <p className={`font-display text-2xl font-600 ${z.featured ? 'text-cream-white' : 'text-forest-700'}`}>
                 {z.radius}
               </p>
-              <p className={`text-sm ${z.featured ? 'text-cream/75' : 'text-forest-900/60'}`}>
+              <p className={`text-sm ${z.featured ? 'text-cream-white/75' : 'text-forest-900/60'}`}>
                 {z.label}
               </p>
 
@@ -66,13 +54,13 @@ export default function Zones() {
               </p>
               <p className="flex items-baseline gap-1">
                 <span className="font-display text-5xl font-600">{z.price}€</span>
-                <span className={z.featured ? 'text-cream/70' : 'text-forest-900/50'}>/ balade</span>
+                <span className={z.featured ? 'text-cream-white/70' : 'text-forest-900/50'}>/ balade</span>
               </p>
 
               <ul className="mt-6 space-y-3 text-sm">
                 {z.perks.map((p) => (
                   <li key={p} className="flex items-start gap-2">
-                    <span className={z.featured ? 'text-sun-400' : 'text-forest-500'}>✓</span>
+                    <span className={z.featured ? 'text-lime-400' : 'text-orange-500'}>✓</span>
                     {p}
                   </li>
                 ))}
@@ -82,8 +70,8 @@ export default function Zones() {
                 href="#contact"
                 className={`mt-8 rounded-full px-6 py-3 text-center font-700 transition-colors ${
                   z.featured
-                    ? 'bg-cream text-forest-700 hover:bg-white'
-                    : 'bg-forest-600 text-cream hover:bg-forest-700'
+                    ? 'bg-orange-500 text-white hover:bg-orange-600'
+                    : 'bg-forest-600 text-cream-white hover:bg-forest-700'
                 }`}
               >
                 Demander ce secteur
@@ -92,10 +80,7 @@ export default function Zones() {
           ))}
         </div>
 
-        <p className="mt-8 text-center text-sm text-forest-900/50">
-          Tarifs indicatifs, en cours d'ajustement. Un doute sur votre secteur ? Écrivez-moi, je vous
-          réponds avec le tarif exact. 🐾
-        </p>
+        <p className="mt-8 text-center text-sm text-forest-900/50">{offers.note}</p>
       </div>
     </section>
   )
