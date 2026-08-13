@@ -5,22 +5,39 @@ import './index.css'
 import App from './App.tsx'
 import { ContentProvider } from './ContentContext.tsx'
 
-// Routage minimal (SPA sans router) : /admin → éditeur, sinon le site.
-// Admin chargé en lazy → supabase-js n'alourdit pas le bundle du site public.
+// Routage minimal (SPA sans router). Pages hors site chargées en lazy pour ne
+// pas alourdir le bundle du site public (supabase-js, textes légaux, etc.).
 const Admin = lazy(() => import('./pages/Admin.tsx'))
-const isAdmin = window.location.pathname.replace(/\/+$/, '') === '/admin'
+const LegalPage = lazy(() => import('./pages/Legal.tsx'))
+const path = window.location.pathname.replace(/\/+$/, '')
 
-createRoot(document.getElementById('root')!).render(
-  <StrictMode>
-    {isAdmin ? (
+function Router() {
+  if (path === '/admin') {
+    return (
       <Suspense fallback={null}>
         <Admin />
       </Suspense>
-    ) : (
+    )
+  }
+  if (path === '/mentions-legales' || path === '/confidentialite') {
+    return (
       <ContentProvider>
-        <App />
+        <Suspense fallback={null}>
+          <LegalPage page={path === '/mentions-legales' ? 'mentions' : 'confidentialite'} />
+        </Suspense>
       </ContentProvider>
-    )}
+    )
+  }
+  return (
+    <ContentProvider>
+      <App />
+    </ContentProvider>
+  )
+}
+
+createRoot(document.getElementById('root')!).render(
+  <StrictMode>
+    <Router />
     <Analytics />
   </StrictMode>,
 )

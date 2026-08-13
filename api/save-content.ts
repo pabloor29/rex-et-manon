@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
-import { normalizeContent } from '../src/content'
-import { supabaseAdmin, OFFERS_ROW_ID, verifyAdmin, bearerToken } from '../src/lib/supabaseServer'
+import { normalizeContent } from '../src/content.js'
+import { supabaseAdmin, OFFERS_ROW_ID, verifyAdmin, bearerToken, cleanupBucket } from '../src/lib/supabaseServer.js'
 
 /**
  * POST /api/save-content — écrit le contenu du site dans Supabase.
@@ -33,10 +33,19 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       .upsert({ id: OFFERS_ROW_ID, data: content, updated_at: content.updatedAt })
 
     if (error) throw error
-    return res.status(200).json({ ok: true, content })
   } catch (e) {
     return res.status(500).json({ error: 'Échec de l’enregistrement.', detail: String(e) })
   }
+
+  // Nettoyage best-effort du bucket : supprime les images désormais inutilisées
+  // (remplacées ou orphelines). N'échoue jamais la sauvegarde.
+  try {
+    await cleanupBucket(content)
+  } catch {
+    /* ignore */
+  }
+
+  return res.status(200).json({ ok: true, content })
 }
 
 function safeParse(s: string): Record<string, unknown> {

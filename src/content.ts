@@ -49,6 +49,12 @@ export type SiteContent = {
     photo: Image
   }
   footer: { tagline: string; credit: string }
+  legal: {
+    statut: string
+    siret: string
+    adresse: string
+    conservation: string
+  }
   updatedAt?: string
 }
 
@@ -78,7 +84,7 @@ export const DEFAULT_CONTENT: SiteContent = {
       { n: 'Bienveillant', l: 'sans forcer' },
     ],
     photo: {
-      src: '/img/photos/t-10.jpg',
+      src: '/img/photos/t-10.webp',
       alt: 'Manon en balade éducative avec deux chiens au soleil couchant, près de Carcassonne',
     },
     photoCaptionTitle: 'T-Rex & Tyla',
@@ -87,8 +93,8 @@ export const DEFAULT_CONTENT: SiteContent = {
   about: {
     eyebrow: 'Qui suis-je',
     title: 'Manon, passionnée par le bien-être des toutous',
-    photo1: { src: '/img/photos/t-03.jpg', alt: 'Manon accroupie entre ses deux chiens sur un chemin' },
-    photo2: { src: '/img/photos/t-02.jpg', alt: 'Portrait d’un des chiens de Manon, assis en forêt' },
+    photo1: { src: '/img/photos/t-03.webp', alt: 'Manon accroupie entre ses deux chiens sur un chemin' },
+    photo2: { src: '/img/photos/t-02.webp', alt: 'Portrait d’un des chiens de Manon, assis en forêt' },
     paragraphs: [
       'Diplômée en éducation et comportement canin, et en formation continue, je lance Rex & Manon : un service de balades éducatives canines à Carcassonne.',
       'Avant tout, je veux comprendre les chiens et leur permettre d’être de supers compagnons de vie — mais surtout d’avoir la meilleure vie de toutou possible. Parce que ce ne sont pas seulement nos compagnons : ce sont des êtres à part entière qui méritent de s’amuser sereinement.',
@@ -101,7 +107,7 @@ export const DEFAULT_CONTENT: SiteContent = {
     title: 'Des balades où votre chien apprend en s’amusant',
     text: 'Rappel, marche en laisse, gestion des émotions et des congénères : chaque sortie est une occasion de progresser, en pleine nature autour de Carcassonne.',
     cta: 'Voir mes balades',
-    photo: { src: '/img/photos/t-06.jpg', alt: 'Deux chiens assis côte à côte sur un chemin en forêt' },
+    photo: { src: '/img/photos/t-06.webp', alt: 'Deux chiens assis côte à côte sur un chemin en forêt' },
   },
   services: {
     eyebrow: 'Mes balades',
@@ -138,15 +144,15 @@ export const DEFAULT_CONTENT: SiteContent = {
     subtitle:
       'Des chiens qui apprennent, se dépensent et profitent de la nature autour de Carcassonne.',
     photos: [
-      { src: '/img/photos/t-08.jpg', alt: 'Portrait d’un chien tout sourire en balade' },
-      { src: '/img/photos/t-11.jpg', alt: 'Chien qui trotte vers l’objectif au soleil couchant' },
-      { src: '/img/photos/t-12.jpg', alt: 'Chien allongé, détendu, sur un chemin' },
-      { src: '/img/photos/p-7431.jpg', alt: 'Chien en balade sur une petite route de campagne' },
-      { src: '/img/photos/t-09.jpg', alt: 'Berger allemand heureux dans les herbes' },
-      { src: '/img/photos/p-7071.jpg', alt: 'Groupe de chiens en balade collective dans un pré' },
-      { src: '/img/photos/t-02.jpg', alt: 'Portrait d’un chien assis en forêt' },
-      { src: '/img/photos/p-5523.jpg', alt: 'Deux chiens qui courent dans la garrigue' },
-      { src: '/img/photos/p-8748.jpg', alt: 'Chien curieux, collier vert, dans la neige' },
+      { src: '/img/photos/t-08.webp', alt: 'Portrait d’un chien tout sourire en balade' },
+      { src: '/img/photos/t-11.webp', alt: 'Chien qui trotte vers l’objectif au soleil couchant' },
+      { src: '/img/photos/t-12.webp', alt: 'Chien allongé, détendu, sur un chemin' },
+      { src: '/img/photos/p-7431.webp', alt: 'Chien en balade sur une petite route de campagne' },
+      { src: '/img/photos/t-09.webp', alt: 'Berger allemand heureux dans les herbes' },
+      { src: '/img/photos/p-7071.webp', alt: 'Groupe de chiens en balade collective dans un pré' },
+      { src: '/img/photos/t-02.webp', alt: 'Portrait d’un chien assis en forêt' },
+      { src: '/img/photos/p-5523.webp', alt: 'Deux chiens qui courent dans la garrigue' },
+      { src: '/img/photos/p-8748.webp', alt: 'Chien curieux, collier vert, dans la neige' },
     ],
   },
   zones: {
@@ -164,11 +170,20 @@ export const DEFAULT_CONTENT: SiteContent = {
     email: 'contact@rex-et-manon.fr',
     phone: '',
     secteurs: ['0 – 10 km de Carcassonne', '10 – 20 km', '20 – 30 km', 'Je ne sais pas'],
-    photo: { src: '/img/photos/t-11.jpg', alt: 'Chien qui trotte joyeusement au soleil couchant' },
+    photo: { src: '/img/photos/t-11.webp', alt: 'Chien qui trotte joyeusement au soleil couchant' },
   },
   footer: {
     tagline: 'Balades éducatives canines — Carcassonne & alentours',
     credit: 'Manon Berthier · Fait avec 🧡 à Carcassonne',
+  },
+  // Infos légales éditables depuis l'admin (onglet « Compte »), affichées sur
+  // les pages /mentions-legales et /confidentialite. Vides par défaut → un
+  // repère « à compléter » s'affiche tant qu'elles ne sont pas renseignées.
+  legal: {
+    statut: '',
+    siret: '',
+    adresse: '',
+    conservation: '',
   },
 }
 

@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
-import { normalizeOffers } from '../src/offers'
-import { supabaseAdmin, OFFERS_ROW_ID, verifyAdmin, bearerToken } from '../src/lib/supabaseServer'
+import { normalizeOffers } from '../src/offers.js'
+import { supabaseAdmin, OFFERS_ROW_ID, verifyAdmin, bearerToken } from '../src/lib/supabaseServer.js'
 
 /**
  * POST /api/save-offres — écrit les offres dans Supabase.

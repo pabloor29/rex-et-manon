@@ -1,0 +1,28 @@
+# Rex & Manon
+
+> Balades éducatives canines à Carcassonne et dans l'Aude (Occitanie, France). Un service qui allie promenade et éducation : le chien se dépense, apprend et progresse, puis rentre plus serein.
+
+Rex & Manon est porté par Manon Berthier, diplômée en éducation et comportement canin. L'approche est bienveillante, sans contrainte, centrée sur le bien-être du chien et l'accompagnement des propriétaires. Prise en charge du chien directement à domicile.
+
+## Zone d'intervention
+
+- Carcassonne et alentours (Aude, code postal 11000).
+- Secteurs tarifés selon la distance depuis Carcassonne : 0–10 km, 10–20 km, 20–30 km.
+
+## Services
+
+- **Balade individuelle** : sortie personnalisée, au rythme du chien ; idéale pour travailler un trouble du comportement précis.
+- **Balade collective** : en petit groupe, pour la sociabilisation et la gestion des émotions entre congénères.
+- **Approche éducative** : rappel, marche en laisse, calme, gestion de la frustration à chaque sortie.
+- **Accompagnement des humains** : conseils concrets pour le quotidien.
+
+## Tarifs
+
+Indicatifs, selon le secteur : à partir de 15 € (0–10 km), 20 € (10–20 km), 25 € (20–30 km). Prise en charge à domicile incluse. Contactez Manon pour le tarif exact de votre secteur.
+
+## Contact & pages
+
+- Site : https://rex-et-manon.vercel.app/
+- Mentions légales : https://rex-et-manon.vercel.app/mentions-legales
+- Confidentialité : https://rex-et-manon.vercel.app/confidentialite
+- Prise de contact via le formulaire du site.

@@ -7,7 +7,7 @@ import {
   type ReactNode,
 } from 'react'
 import type { Session } from '@supabase/supabase-js'
-import { supabase, supabaseConfigured, authedPost, uploadImage } from '../lib/supabaseClient'
+import { supabase, supabaseConfigured, authedPost, uploadImage, fetchIsAdmin } from '../lib/supabaseClient'
 import { DEFAULT_OFFERS, normalizeOffers, DEFAULT_PERKS, type Offers, type Zone } from '../offers'
 import { DEFAULT_CONTENT, normalizeContent, type Image, type SiteContent } from '../content'
 import { ContentValue } from '../ContentContext'
@@ -52,6 +52,9 @@ const PREVIEW: Record<string, { label: string; Comp: ComponentType }> = {
 export default function Admin() {
   const [session, setSession] = useState<Session | null>(null)
   const [sessionReady, setSessionReady] = useState(false)
+  // null = vérification en cours ; true/false = résultat du contrôle profiles.
+  const [authorized, setAuthorized] = useState<boolean | null>(null)
+  const [authError, setAuthError] = useState('')
   const [tab, setTab] = useState<Tab>('contenu')
 
   const [content, setContent] = useState<SiteContent>(DEFAULT_CONTENT)
@@ -83,6 +86,31 @@ export default function Admin() {
     const { data: sub } = supabase.auth.onAuthStateChange((_e, s) => setSession(s))
     return () => sub.subscription.unsubscribe()
   }, [])
+
+  // Contrôle d'accès : une session Supabase Auth ne suffit pas — l'utilisateur
+  // doit être enregistré dans rex_et_manon.profiles (role = 'admin'). Sinon on
+  // le déconnecte immédiatement et on affiche un refus sur l'écran de login.
+  useEffect(() => {
+    if (!session) {
+      setAuthorized(null)
+      return
+    }
+    let cancelled = false
+    setAuthorized(null)
+    fetchIsAdmin().then((ok) => {
+      if (cancelled) return
+      if (ok) {
+        setAuthorized(true)
+        setAuthError('')
+      } else {
+        setAuthError("Ce compte n'est pas autorisé à accéder à l'administration.")
+        supabase.auth.signOut()
+      }
+    })
+    return () => {
+      cancelled = true
+    }
+  }, [session])
 
   // Charge le contenu publié.
   useEffect(() => {
@@ -143,7 +171,15 @@ export default function Admin() {
   if (!session) {
     return (
       <Shell>
-        <Login />
+        <Login notice={authError} />
+      </Shell>
+    )
+  }
+
+  if (authorized !== true) {
+    return (
+      <Shell>
+        <p className="mt-8 text-forest-900/70">Vérification de l’accès…</p>
       </Shell>
     )
   }
@@ -428,6 +464,29 @@ function Coordonnees({
         <Field label="Email de réception" value={c.contact.email} onChange={(v) => patch('contact', { email: v })} />
         <Field label="Téléphone (laisser vide pour ne pas l'afficher)" value={c.contact.phone} onChange={(v) => patch('contact', { phone: v })} />
       </Card>
+
+      <Card
+        title="Informations légales"
+        desc="Affichées sur les pages Mentions légales et Politique de confidentialité. Tant qu'un champ est vide, un repère « à compléter » s'affiche sur ces pages."
+      >
+        <Field
+          label="Statut juridique (ex. micro-entreprise / entreprise individuelle)"
+          value={c.legal.statut}
+          onChange={(v) => patch('legal', { statut: v })}
+        />
+        <Field label="SIRET" value={c.legal.siret} onChange={(v) => patch('legal', { siret: v })} />
+        <Field
+          label="Adresse postale de l'activité"
+          value={c.legal.adresse}
+          onChange={(v) => patch('legal', { adresse: v })}
+        />
+        <Field
+          label="Durée de conservation des données (ex. supprimées au bout de 12 mois sans suite)"
+          value={c.legal.conservation}
+          onChange={(v) => patch('legal', { conservation: v })}
+        />
+      </Card>
+
       <SaveBar status={status} onSave={onSave} />
     </>
   )
@@ -563,7 +622,7 @@ function SaveBar({ status, onSave }: { status: Status; onSave: () => void }) {
 }
 
 /** Formulaire de connexion admin (Supabase Auth email + mot de passe). */
-function Login() {
+function Login({ notice }: { notice?: string }) {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
@@ -577,6 +636,9 @@ function Login() {
     setLoading(false)
     if (error) setError(error.message)
   }
+
+  // `notice` = refus renvoyé par le contrôle profiles (compte non autorisé).
+  const message = error || notice
 
   return (
     <form onSubmit={submit} className="mx-auto mt-12 max-w-sm rounded-2xl bg-cream-white p-6 shadow-sm ring-1 ring-forest-100">
@@ -607,7 +669,7 @@ function Login() {
         className="mt-1.5 w-full rounded-xl border border-forest-100 bg-cream px-4 py-2.5 text-forest-900 outline-none focus:border-orange-400 focus:ring-2 focus:ring-orange-200"
       />
 
-      {error && <p className="mt-3 text-sm text-orange-600">⚠ {error}</p>}
+      {message && <p className="mt-3 text-sm text-orange-600">⚠ {message}</p>}
 
       <button
         type="submit"

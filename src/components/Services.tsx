@@ -1,13 +1,9 @@
-import Scallop from './Scallop'
 import { useContent } from '../ContentContext'
 
 export default function Services() {
   const { services } = useContent()
   return (
-    <section id="services" className="relative bg-forest-700 text-cream-white">
-      {/* Feston / store — élément graphique de la charte */}
-      <Scallop color="bg-cream-soft" />
-
+    <section id="services" className="bg-forest-700 text-cream-white">
       <div className="container-page py-20 sm:py-28">
         <div className="mx-auto max-w-2xl text-center">
           <span className="text-sm font-800 tracking-wide text-lime-400 uppercase">{services.eyebrow}</span>

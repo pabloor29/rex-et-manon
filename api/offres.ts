@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
-import { DEFAULT_OFFERS, normalizeOffers } from '../src/offers'
-import { supabaseAdmin, OFFERS_ROW_ID } from '../src/lib/supabaseServer'
+import { DEFAULT_OFFERS, normalizeOffers } from '../src/offers.js'
+import { supabaseAdmin, OFFERS_ROW_ID } from '../src/lib/supabaseServer.js'
 
 /** GET /api/offres — lit les offres depuis Supabase (fallback = valeurs par défaut). */
 export default async function handler(req: VercelRequest, res: VercelResponse) {

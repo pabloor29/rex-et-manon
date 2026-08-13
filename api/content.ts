@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
-import { DEFAULT_CONTENT, normalizeContent } from '../src/content'
-import { supabaseAdmin, OFFERS_ROW_ID } from '../src/lib/supabaseServer'
+import { DEFAULT_CONTENT, normalizeContent } from '../src/content.js'
+import { supabaseAdmin, OFFERS_ROW_ID } from '../src/lib/supabaseServer.js'
 
 /** GET /api/content — lit le contenu du site depuis Supabase (fallback = défauts). */
 export default async function handler(req: VercelRequest, res: VercelResponse) {

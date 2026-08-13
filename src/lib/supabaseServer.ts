@@ -1,4 +1,13 @@
 import { createClient } from '@supabase/supabase-js'
+import { WebSocket as WS } from 'ws'
+
+// @supabase/supabase-js (realtime-js) exige un WebSocket global. Node 22+ en
+// fournit un nativement (comme le runtime Vercel prod, Node 24). En dev local
+// sous Node < 22, il est absent → createClient throw. On polyfill via `ws`.
+// Sans effet quand WebSocket natif existe déjà.
+if (typeof (globalThis as { WebSocket?: unknown }).WebSocket === 'undefined') {
+  ;(globalThis as { WebSocket?: unknown }).WebSocket = WS
+}
 
 // Client Supabase réservé au serveur (fonctions Vercel dans api/).
 // Utilise la clé service_role : ne JAMAIS l'importer depuis le bundle client.
@@ -17,6 +26,38 @@ export function supabaseAdmin() {
 
 // Nom de la table document (une seule ligne, id = 1).
 export const OFFERS_ROW_ID = 1
+
+// Bucket public des images uploadées depuis l'admin.
+export const PHOTOS_BUCKET = 'rex-et-manon'
+
+/**
+ * Nettoie le bucket : supprime toute image qui n'est plus référencée dans le
+ * `content` fourni (couvre le remplacement d'une image et purge les orphelines).
+ * Best-effort — l'appelant ne doit pas échouer si ça throw.
+ */
+export async function cleanupBucket(content: unknown): Promise<{ deleted: string[] }> {
+  const url = process.env.SUPABASE_URL
+  if (!url) return { deleted: [] }
+  const sb = supabaseAdmin()
+  const prefix = `${url}/storage/v1/object/public/${PHOTOS_BUCKET}/`
+
+  // Noms d'objets référencés dans le contenu (URLs pointant vers ce bucket).
+  const used = new Set<string>()
+  const re = new RegExp(prefix.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '([^"\\s?]+)', 'g')
+  const json = JSON.stringify(content)
+  let m: RegExpExecArray | null
+  while ((m = re.exec(json))) used.add(decodeURIComponent(m[1]))
+
+  const { data: objects, error } = await sb.storage.from(PHOTOS_BUCKET).list('', { limit: 1000 })
+  if (error || !objects) return { deleted: [] }
+
+  const toDelete = objects.map((o) => o.name).filter((n) => n && !used.has(n))
+  if (toDelete.length) {
+    const { error: delErr } = await sb.storage.from(PHOTOS_BUCKET).remove(toDelete)
+    if (delErr) return { deleted: [] }
+  }
+  return { deleted: toDelete }
+}
 
 // Vérifie un access token Supabase (Bearer) et confirme que l'utilisateur est
 // un admin Rex & Manon (ligne dans rex_et_manon.profiles avec role = 'admin').
