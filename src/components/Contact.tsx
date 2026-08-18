@@ -1,9 +1,17 @@
-import { useState, type FormEvent } from 'react'
+import { useEffect, useState, type FormEvent } from 'react'
 import { useContent } from '../ContentContext'
 
 export default function Contact() {
   const { contact } = useContent()
   const [sent, setSent] = useState(false)
+  const [secteur, setSecteur] = useState(() => contact.secteurs[0] ?? '')
+
+  // Pré-remplissage du secteur depuis les boutons « Demander ce secteur » (section tarifs).
+  useEffect(() => {
+    const onPrefill = (e: Event) => setSecteur((e as CustomEvent<string>).detail)
+    window.addEventListener('secteur:prefill', onPrefill)
+    return () => window.removeEventListener('secteur:prefill', onPrefill)
+  }, [])
 
   function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -37,7 +45,7 @@ export default function Contact() {
         <img
           src={contact.photo.src}
           alt={contact.photo.alt}
-          className="h-64 w-full object-cover sm:h-80"
+          className="h-72 w-full object-cover object-[center_30%] sm:h-96"
           loading="lazy"
         />
         <div className="absolute inset-0 bg-forest-900/55" />
@@ -109,6 +117,8 @@ export default function Contact() {
                     <select
                       id="secteur"
                       name="secteur"
+                      value={secteur}
+                      onChange={(e) => setSecteur(e.target.value)}
                       className="w-full rounded-xl border border-forest-100 bg-cream px-4 py-3 text-forest-900 outline-none focus:border-orange-400 focus:ring-2 focus:ring-orange-200"
                     >
                       {contact.secteurs.map((s) => (

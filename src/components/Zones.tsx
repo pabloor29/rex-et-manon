@@ -3,7 +3,7 @@ import { DEFAULT_OFFERS, normalizeOffers, type Offers } from '../offers'
 import { useContent } from '../ContentContext'
 
 export default function Zones() {
-  const { zones: zonesText } = useContent()
+  const { zones: zonesText, contact } = useContent()
   const [offers, setOffers] = useState<Offers>(DEFAULT_OFFERS)
 
   // Charge les offres publiées (Supabase via /api/offres). Sans API → valeurs par défaut.
@@ -28,7 +28,7 @@ export default function Zones() {
         </div>
 
         <div className="mt-14 grid gap-6 lg:grid-cols-3">
-          {offers.zones.map((z) => (
+          {offers.zones.map((z, i) => (
             <div
               key={z.radius}
               className={`relative flex flex-col rounded-3xl p-8 transition-transform hover:-translate-y-1 ${
@@ -68,6 +68,14 @@ export default function Zones() {
 
               <a
                 href="#contact"
+                onClick={() =>
+                  window.dispatchEvent(
+                    new CustomEvent('secteur:prefill', {
+                      // Pré-remplit le <select> du formulaire avec le secteur correspondant.
+                      detail: contact.secteurs[i] ?? z.label,
+                    }),
+                  )
+                }
                 className={`mt-8 rounded-full px-6 py-3 text-center font-700 transition-colors ${
                   z.featured
                     ? 'bg-orange-500 text-white hover:bg-orange-600'

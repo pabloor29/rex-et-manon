@@ -3,7 +3,8 @@ import { useContent } from '../ContentContext'
 
 export default function Navbar() {
   const { nav } = useContent()
-  const links = nav.links
+  // Le bouton CTA « Me contacter » pointe déjà vers #contact → on retire le lien nav en double.
+  const links = nav.links.filter((l) => l.href !== '#contact')
   const [scrolled, setScrolled] = useState(false)
   const [open, setOpen] = useState(false)
 

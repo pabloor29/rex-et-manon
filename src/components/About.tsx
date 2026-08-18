@@ -3,8 +3,12 @@ import { useContent } from '../ContentContext'
 
 export default function About() {
   const { about } = useContent()
+  // Bandeau défilant : une « moitié » = les tags répétés 3× (pour remplir les grands écrans),
+  // dupliquée → translateX(-50%) rejoue exactement la même moitié = boucle sans couture.
+  const loop = [...about.tags, ...about.tags, ...about.tags]
+  const marquee = [...loop, ...loop]
   return (
-    <section id="apropos" className="bg-cream-soft py-20 sm:py-28">
+    <section id="apropos" className="overflow-hidden bg-cream-soft py-20 sm:py-28">
       <div className="container-page grid items-center gap-14 lg:grid-cols-2">
         {/* Collage photos */}
         <div className="relative order-2 lg:order-1">
@@ -36,18 +40,22 @@ export default function About() {
               <p key={i}>{p}</p>
             ))}
           </div>
-
-          <ul className="mt-8 flex flex-wrap gap-3">
-            {about.tags.map((t) => (
-              <li
-                key={t}
-                className="rounded-full bg-lime-400/20 px-4 py-2 text-sm font-700 text-forest-700 ring-1 ring-lime-400/40"
-              >
-                {t}
-              </li>
-            ))}
-          </ul>
         </div>
+      </div>
+
+      {/* Bandeau de pastilles pleine largeur (centré sur l'écran), défile en continu */}
+      <div className="marquee-mask relative left-1/2 mt-12 w-screen -translate-x-1/2 overflow-hidden py-3 sm:mt-16">
+        <ul className="animate-marquee flex w-max gap-3 px-3">
+          {marquee.map((t, i) => (
+            <li
+              key={i}
+              aria-hidden={i >= loop.length}
+              className="shrink-0 whitespace-nowrap rounded-full bg-lime-400/20 px-4 py-2 text-sm font-700 text-forest-700 ring-1 ring-lime-400/40"
+            >
+              {t}
+            </li>
+          ))}
+        </ul>
       </div>
     </section>
   )

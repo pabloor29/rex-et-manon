@@ -9,12 +9,12 @@ export default function Feature() {
       <img
         src={feature.photo.src}
         alt={feature.photo.alt}
-        className="h-[62vh] max-h-[560px] min-h-80 w-full object-cover"
+        className="h-[62vh] max-h-[560px] min-h-[26rem] w-full object-cover object-top"
         loading="lazy"
       />
       <div className="absolute inset-0 bg-gradient-to-r from-forest-900/85 via-forest-900/55 to-forest-900/10" />
 
-      <div className="absolute inset-0 flex items-center">
+      <div className="absolute inset-0 flex items-center py-10 sm:py-14">
         <div className="container-page">
           <div className="max-w-xl text-cream-white">
             <span className="inline-flex items-center gap-2 rounded-full bg-orange-500/90 px-4 py-1.5 text-sm font-700 text-white">

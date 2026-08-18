@@ -66,7 +66,6 @@ export const DEFAULT_CONTENT: SiteContent = {
       { href: '#services', label: 'Mes balades' },
       { href: '#galerie', label: 'Galerie' },
       { href: '#zones', label: 'Zone & tarifs' },
-      { href: '#contact', label: 'Contact' },
     ],
     cta: 'Me contacter',
   },
