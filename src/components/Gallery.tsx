@@ -6,6 +6,7 @@ export default function Gallery() {
   const photos = gallery.photos
   const trackRef = useRef<HTMLDivElement>(null)
   const [active, setActive] = useState(0)
+  const [perView, setPerView] = useState(1)
 
   // Met à jour la puce active selon le défilement
   useEffect(() => {
@@ -17,6 +18,22 @@ export default function Gallery() {
     }
     el.addEventListener('scroll', onScroll, { passive: true })
     return () => el.removeEventListener('scroll', onScroll)
+  }, [photos.length])
+
+  // Nombre de photos visibles par écran → taille de la barre orange
+  useEffect(() => {
+    const el = trackRef.current
+    if (!el) return
+    const measure = () => {
+      const first = el.firstElementChild as HTMLElement | null
+      if (!first) return
+      const gap = 16 // gap-4
+      const slot = first.offsetWidth + gap
+      setPerView(Math.max(1, Math.min(photos.length, Math.round(el.clientWidth / slot))))
+    }
+    measure()
+    window.addEventListener('resize', measure)
+    return () => window.removeEventListener('resize', measure)
   }, [photos.length])
 
   function scrollTo(i: number) {
@@ -43,7 +60,7 @@ export default function Gallery() {
             {photos.map((p) => (
               <figure
                 key={p.src}
-                className="relative aspect-[4/3] w-[82%] shrink-0 snap-center overflow-hidden rounded-3xl shadow-md ring-1 ring-forest-100 sm:w-[46%] lg:w-[32%]"
+                className="relative aspect-[4/3] w-[82%] shrink-0 snap-center overflow-hidden rounded-3xl shadow-md ring-1 ring-forest-100 sm:w-[calc(50%-8px)] sm:snap-start lg:w-[calc(33.333%-10.667px)]"
               >
                 <img
                   src={p.src}
@@ -74,20 +91,36 @@ export default function Gallery() {
           </button>
         </div>
 
-        {/* Puces */}
-        <div className="mt-6 flex justify-center gap-2">
-          {photos.map((p, i) => (
-            <button
-              key={p.src}
-              type="button"
-              onClick={() => scrollTo(i)}
-              aria-label={`Aller à la photo ${i + 1}`}
-              className={`h-2.5 rounded-full transition-all ${
-                i === active ? 'w-6 bg-orange-500' : 'w-2.5 bg-forest-200 hover:bg-forest-300'
-              }`}
-            />
-          ))}
-        </div>
+        {/* Puces : barre orange englobant les photos visibles à l'écran */}
+        {(() => {
+          const slot = 18 // puce 10px (w-2.5) + gap 8px (gap-2)
+          const start = Math.min(active, Math.max(0, photos.length - perView))
+          return (
+            <div className="mt-6 flex justify-center">
+              <div className="relative inline-flex items-center gap-2">
+                <span
+                  aria-hidden
+                  className="absolute top-1/2 h-4 -translate-y-1/2 rounded-full bg-orange-500 transition-all"
+                  style={{ left: start * slot - 4, width: (perView - 1) * slot + 18 }}
+                />
+                {photos.map((p, i) => {
+                  const inView = i >= start && i < start + perView
+                  return (
+                    <button
+                      key={p.src}
+                      type="button"
+                      onClick={() => scrollTo(i)}
+                      aria-label={`Aller à la photo ${i + 1}`}
+                      className={`relative z-10 size-2.5 rounded-full transition-all ${
+                        inView ? 'bg-white' : 'bg-forest-200 hover:bg-forest-300'
+                      }`}
+                    />
+                  )
+                })}
+              </div>
+            </div>
+          )
+        })()}
       </div>
     </section>
   )

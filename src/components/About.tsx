@@ -1,12 +1,40 @@
+import { useEffect, useRef, useState } from 'react'
 import TennisBall from './TennisBall'
 import { useContent } from '../ContentContext'
 
 export default function About() {
   const { about } = useContent()
-  // Bandeau défilant : une « moitié » = les tags répétés 3× (pour remplir les grands écrans),
+  // Bandeau défilant : une « moitié » = la liste unique des tags (aucun doublon visible à l'écran),
   // dupliquée → translateX(-50%) rejoue exactement la même moitié = boucle sans couture.
-  const loop = [...about.tags, ...about.tags, ...about.tags]
+  const loop = [...about.tags]
   const marquee = [...loop, ...loop]
+
+  const maskRef = useRef<HTMLDivElement>(null)
+  const ulRef = useRef<HTMLUListElement>(null)
+  // Espace (px) appliqué en margin-right sur CHAQUE pastille (y compris la dernière) :
+  //  - marge uniforme ⇒ translateX(-50%) tombe pile ⇒ boucle sans couture ;
+  //  - calibré pour qu'une copie unique dépasse la largeur d'écran ⇒ le doublon reste
+  //    hors champ ⇒ jamais deux fois le même mot en même temps.
+  const [gap, setGap] = useState(14)
+  useEffect(() => {
+    const ul = ulRef.current
+    const mask = maskRef.current
+    if (!ul || !mask) return
+    const measure = () => {
+      const items = Array.from(ul.children) as HTMLElement[]
+      const n = loop.length
+      if (!items.length || n === 0) return
+      let bubbles = 0 // largeur cumulée des pastilles d'une copie (hors marge)
+      for (let i = 0; i < n && i < items.length; i++) bubbles += items[i].offsetWidth
+      const buffer = 24 // garde le doublon hors écran
+      const g = Math.max(8, Math.ceil((mask.clientWidth + buffer - bubbles) / n))
+      setGap(g)
+    }
+    measure()
+    window.addEventListener('resize', measure)
+    return () => window.removeEventListener('resize', measure)
+  }, [about.tags])
+
   return (
     <section id="apropos" className="overflow-hidden bg-cream-soft py-20 sm:py-28">
       <div className="container-page grid items-center gap-14 lg:grid-cols-2">
@@ -44,12 +72,16 @@ export default function About() {
       </div>
 
       {/* Bandeau de pastilles pleine largeur (centré sur l'écran), défile en continu */}
-      <div className="marquee-mask relative left-1/2 mt-12 w-screen -translate-x-1/2 overflow-hidden py-3 sm:mt-16">
-        <ul className="animate-marquee flex w-max gap-3 px-3">
+      <div
+        ref={maskRef}
+        className="marquee-mask relative left-1/2 mt-12 w-screen -translate-x-1/2 overflow-hidden py-3 sm:mt-16 lg:max-w-4xl"
+      >
+        <ul ref={ulRef} className="animate-marquee flex w-max">
           {marquee.map((t, i) => (
             <li
               key={i}
               aria-hidden={i >= loop.length}
+              style={{ marginRight: gap }}
               className="shrink-0 whitespace-nowrap rounded-full bg-lime-400/20 px-4 py-2 text-sm font-700 text-forest-700 ring-1 ring-lime-400/40"
             >
               {t}

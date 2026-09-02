@@ -27,11 +27,11 @@ export default function Zones() {
           <p className="mt-4 text-lg text-forest-900/70">{zonesText.subtitle}</p>
         </div>
 
-        <div className="mt-14 grid gap-6 lg:grid-cols-3">
+        <div className="mt-14 flex flex-wrap justify-center gap-6">
           {offers.zones.map((z, i) => (
             <div
               key={z.radius}
-              className={`relative flex flex-col rounded-3xl p-8 transition-transform hover:-translate-y-1 ${
+              className={`relative flex w-full flex-col rounded-3xl p-8 transition-transform hover:-translate-y-1 sm:w-[20rem] ${
                 z.featured
                   ? 'bg-forest-600 text-cream-white shadow-xl ring-4 ring-lime-400/50'
                   : 'bg-cream-white text-forest-900 shadow-md ring-1 ring-forest-100'
@@ -55,6 +55,9 @@ export default function Zones() {
               <p className="flex items-baseline gap-1">
                 <span className="font-display text-5xl font-600">{z.price}€</span>
                 <span className={z.featured ? 'text-cream-white/70' : 'text-forest-900/50'}>/ balade</span>
+              </p>
+              <p className={`mt-1 text-sm ${z.featured ? 'text-cream-white/70' : 'text-forest-900/60'}`}>
+                Le tarif dépend de la zone géographique.
               </p>
 
               <ul className="mt-6 space-y-3 text-sm">
