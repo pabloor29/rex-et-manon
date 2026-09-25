@@ -8,3 +8,8 @@ interface ImportMetaEnv {
 interface ImportMeta {
   readonly env: ImportMetaEnv
 }
+
+// Contenu du site injecté par le SSR (api/ssr) pour une hydratation sans écart.
+interface Window {
+  __SSR_CONTENT__?: unknown
+}

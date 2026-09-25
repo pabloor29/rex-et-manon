@@ -1,6 +1,15 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
+  "functions": {
+    "api/ssr.ts": {
+      "includeFiles": "dist/index.html"
+    }
+  },
   "rewrites": [
+    { "source": "/", "destination": "/api/ssr?p=home" },
+    { "source": "/mentions-legales", "destination": "/api/ssr?p=mentions" },
+    { "source": "/confidentialite", "destination": "/api/ssr?p=confidentialite" },
+    { "source": "/admin", "destination": "/index.html" },
     {
       "source": "/((?!api/|@|src/|node_modules/|.*\\..*).*)",
       "destination": "/index.html"
