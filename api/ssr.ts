@@ -1,10 +1,25 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
+import { pathToFileURL } from 'node:url'
 import { DEFAULT_CONTENT, normalizeContent, type SiteContent } from '../src/content.js'
 import { supabaseAdmin, OFFERS_ROW_ID } from '../src/lib/supabaseServer.js'
 import { themeToCssVars } from '../src/theme.js'
-import { render, type SsrTarget } from '../src/entry-server.js'
+
+type SsrTarget = 'home' | 'mentions' | 'confidentialite'
+
+// Bundle SSR auto-contenu produit par `vite build --ssr` (React inliné). Importé
+// dynamiquement (chemin opaque) pour que @vercel/node ne tente pas de le compiler :
+// les composants .tsx ne sont pas gérés par sa compilation d'imports.
+type RenderFn = (target: SsrTarget, content: SiteContent) => string
+let RENDER: RenderFn | null = null
+async function loadRender(): Promise<RenderFn> {
+  if (RENDER == null) {
+    const mod = await import(pathToFileURL(join(process.cwd(), 'dist', 'server', 'entry-server.js')).href)
+    RENDER = mod.render as RenderFn
+  }
+  return RENDER
+}
 
 // Template client construit par Vite (dist/index.html) — inclus dans la fonction
 // via `functions.includeFiles` dans vercel.json. Lu une fois puis mis en cache.
@@ -45,13 +60,13 @@ const LEGAL = {
  * (le client rendra alors le site comme avant, via /api/content).
  */
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-  const tmpl = template()
   const target = targetOf(req.query.p)
   res.setHeader('Content-Type', 'text/html; charset=utf-8')
   res.setHeader('Cache-Control', 'public, s-maxage=15, stale-while-revalidate=60')
 
   try {
-    const content = await loadContent()
+    const tmpl = template()
+    const [render, content] = await Promise.all([loadRender(), loadContent()])
     const appHtml = render(target, content)
 
     // Variables de thème (couleurs de la charte pilotées depuis l'admin) injectées
@@ -76,8 +91,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       .replace('<div id="root"></div>', `<div id="root">${appHtml}</div>`)
 
     return res.status(200).send(html)
-  } catch {
+  } catch (err) {
     // Repli : template brut → rendu client-only (comportement d'origine).
-    return res.status(200).send(tmpl)
+    console.error('[ssr] fallback (rendu serveur indisponible):', err)
+    try {
+      return res.status(200).send(template())
+    } catch {
+      return res.status(500).send('Erreur serveur')
+    }
   }
 }

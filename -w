@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/svg+xml" href="/brand/favicon.svg" />
+
+    <!-- Domaine canonique de production (aussi référencé dans robots.txt, sitemap.xml, llms.txt). -->
+    <link rel="canonical" href="https://www.rexetmanon.com/" />
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+
+    <title>Rex & Manon — Balades éducatives canines à Carcassonne (Aude)</title>
+    <meta
+      name="description"
+      content="Rex & Manon : balades éducatives canines à Carcassonne et dans l'Aude. Éducation, comportement et bien-être du chien, en balade individuelle ou collective. Prise en charge à domicile."
+    />
+    <meta name="keywords" content="balade canine Carcassonne, éducation canine Aude, éducateur canin Carcassonne, comportement chien, promenade chien, rééducation chien, balade éducative" />
+    <meta name="author" content="Manon Berthier" />
+    <meta name="theme-color" content="#005A2F" />
+
+    <!-- Géolocalisation (SEO local) -->
+    <meta name="geo.region" content="FR-11" />
+    <meta name="geo.placename" content="Carcassonne, Aude, Occitanie" />
+    <meta name="geo.position" content="43.2130;2.3491" />
+    <meta name="ICBM" content="43.2130, 2.3491" />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Rex & Manon" />
+    <meta property="og:title" content="Rex & Manon — Balades éducatives canines à Carcassonne" />
+    <meta property="og:description" content="Balades éducatives canines à Carcassonne et dans l'Aude : votre chien apprend, se dépense et progresse. Balades individuelles ou collectives, prise en charge à domicile." />
+    <meta property="og:url" content="https://www.rexetmanon.com/" />
+    <meta property="og:image" content="https://www.rexetmanon.com/img/photos/t-10.webp" />
+    <meta property="og:image:alt" content="Manon en balade éducative avec deux chiens au soleil couchant, près de Carcassonne" />
+    <meta property="og:locale" content="fr_FR" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Rex & Manon — Balades éducatives canines à Carcassonne" />
+    <meta name="twitter:description" content="Balades éducatives canines à Carcassonne et dans l'Aude. Votre chien apprend, se dépense et progresse." />
+    <meta name="twitter:image" content="https://www.rexetmanon.com/img/photos/t-10.webp" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <!-- Nunito = police corps de la charte · Fredoka = approximation libre d'Intro Rust (titres) -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <!-- Préchargement de l'image LCP (photo du hero) -->
+    <link rel="preload" as="image" href="/img/photos/t-10.webp" fetchpriority="high" />
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "WebSite",
+            "@id": "https://www.rexetmanon.com/#website",
+            "url": "https://www.rexetmanon.com/",
+            "name": "Rex & Manon",
+            "description": "Balades éducatives canines à Carcassonne et dans l'Aude.",
+            "inLanguage": "fr-FR",
+            "publisher": { "@id": "https://www.rexetmanon.com/#business" }
+          },
+          {
+            "@type": ["LocalBusiness", "ProfessionalService"],
+            "@id": "https://www.rexetmanon.com/#business",
+            "name": "Rex & Manon",
+            "description": "Balades éducatives canines à Carcassonne et dans l'Aude : éducation, comportement et bien-être du chien, en balade individuelle ou collective. Prise en charge à domicile.",
+            "url": "https://www.rexetmanon.com/",
+            "image": "https://www.rexetmanon.com/img/photos/t-10.webp",
+            "logo": "https://www.rexetmanon.com/brand/logo-horizontal-couleur.svg",
+            "priceRange": "€",
+            "currenciesAccepted": "EUR",
+            "knowsLanguage": "fr",
+            "founder": { "@type": "Person", "name": "Manon Berthier" },
+            "address": {
+              "@type": "PostalAddress",
+              "addressLocality": "Carcassonne",
+              "addressRegion": "Aude",
+              "postalCode": "11000",
+              "addressCountry": "FR"
+            },
+            "geo": { "@type": "GeoCoordinates", "latitude": 43.2130, "longitude": 2.3491 },
+            "areaServed": [
+              { "@type": "City", "name": "Carcassonne" },
+              { "@type": "AdministrativeArea", "name": "Aude" }
+            ],
+            "serviceType": "Éducateur canin — balades éducatives canines",
+            "hasOfferCatalog": {
+              "@type": "OfferCatalog",
+              "name": "Balades éducatives canines",
+              "itemListElement": [
+                {
+                  "@type": "Offer",
+                  "itemOffered": {
+                    "@type": "Service",
+                    "name": "Balade individuelle",
+                    "description": "Une sortie rien que pour votre chien, à son rythme, pour travailler en douceur un trouble du comportement ou une difficulté précise."
+                  }
+                },
+                {
+                  "@type": "Offer",
+                  "itemOffered": {
+                    "@type": "Service",
+                    "name": "Balade collective",
+                    "description": "En petit groupe, pour apprendre à bien vivre avec ses congénères : sociabilisation, gestion de l'excitation et des émotions."
+                  }
+                },
+                {
+                  "@type": "Offer",
+                  "itemOffered": {
+                    "@type": "Service",
+                    "name": "Accompagnement éducatif",
+                    "description": "Rappel, marche en laisse, calme, gestion de la frustration : chaque balade est l'occasion pour le chien de progresser."
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    </script>
+    <script type="module" crossorigin src="/assets/index-QrqIPedm.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-BJiBI0CE.css">
+  </head>
+  <body>
+    <div id="root"></div>
+  </body>
+</html>
