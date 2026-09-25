@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build && vite build --ssr src/entry-server.tsx --outDir dist/server",
+    "build": "tsc -b && vite build && vite build --ssr src/entry-server.tsx --outDir .ssr && node -e \"require('fs').renameSync('dist/index.html','.ssr/template.html')\"",
     "preview": "vite preview"
   },
   "dependencies": {

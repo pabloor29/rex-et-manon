@@ -15,17 +15,18 @@ type RenderFn = (target: SsrTarget, content: SiteContent) => string
 let RENDER: RenderFn | null = null
 async function loadRender(): Promise<RenderFn> {
   if (RENDER == null) {
-    const mod = await import(pathToFileURL(join(process.cwd(), 'dist', 'server', 'entry-server.js')).href)
+    const mod = await import(pathToFileURL(join(process.cwd(), '.ssr', 'entry-server.js')).href)
     RENDER = mod.render as RenderFn
   }
   return RENDER
 }
 
-// Template client construit par Vite (dist/index.html) — inclus dans la fonction
-// via `functions.includeFiles` dans vercel.json. Lu une fois puis mis en cache.
+// Shell HTML construit par Vite puis déplacé hors de dist/ (sinon il serait servi
+// statiquement sur `/`, ce qui court-circuiterait ce rewrite). Inclus dans la
+// fonction via `functions.includeFiles`. Lu une fois puis mis en cache.
 let TEMPLATE: string | null = null
 function template(): string {
-  if (TEMPLATE == null) TEMPLATE = readFileSync(join(process.cwd(), 'dist', 'index.html'), 'utf8')
+  if (TEMPLATE == null) TEMPLATE = readFileSync(join(process.cwd(), '.ssr', 'template.html'), 'utf8')
   return TEMPLATE
 }
 
@@ -44,8 +45,9 @@ async function loadContent(): Promise<SiteContent> {
   }
 }
 
-function targetOf(p: unknown): SsrTarget {
-  return p === 'mentions' || p === 'confidentialite' ? p : 'home'
+function targetOf(p: unknown): SsrTarget | null {
+  if (p === 'home' || p === 'mentions' || p === 'confidentialite') return p
+  return null // route sans SSR (admin, inconnue) → shell brut
 }
 
 const LEGAL = {
@@ -63,6 +65,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const target = targetOf(req.query.p)
   res.setHeader('Content-Type', 'text/html; charset=utf-8')
   res.setHeader('Cache-Control', 'public, s-maxage=15, stale-while-revalidate=60')
+
+  // Routes sans SSR (admin, chemins inconnus) : shell brut, le client rend l'app.
+  if (target == null) {
+    try {
+      return res.status(200).send(template())
+    } catch (err) {
+      console.error('[ssr] shell introuvable:', err)
+      return res.status(500).send('Erreur serveur')
+    }
+  }
 
   try {
     const tmpl = template()
