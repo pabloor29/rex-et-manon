@@ -2,7 +2,7 @@
 
 One-page vitrine pour **Manon Berthier** — balades éducatives canines à Carcassonne.
 
-Stack : **React 18 + TypeScript + Vite 6 + Tailwind CSS v4**, hébergement **Vercel** (fonctions serverless + Blob, sans base de données).
+Stack : **React 18 + TypeScript + Vite 6 + Tailwind CSS v4**, hébergement **Vercel** (fonctions serverless + rendu SSR), données & admin sur **Supabase** (schéma `rex_et_manon`).
 
 ## Démarrer
 
