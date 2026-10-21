@@ -2,6 +2,10 @@ node_modules
 dist
 dist-ssr
 .ssr
+# `vercel dev` (CLI natif) lance `yarn install` même si le repo est en npm — on ignore son lockfile
+yarn.lock
+# artefacts de build tsc (régénérés à chaque build)
+*.tsbuildinfo
 *.local
 .env
 .env.*
