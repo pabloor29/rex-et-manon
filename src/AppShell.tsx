@@ -3,7 +3,9 @@ import { Analytics } from '@vercel/analytics/react'
 import App from './App'
 import LegalPage from './pages/Legal'
 import { ContentValue } from './ContentContext'
+import { FaqValue } from './FaqContext'
 import type { SiteContent } from './content'
+import { DEFAULT_FAQ, type Faq } from './faq'
 
 // Cibles rendues par le serveur (SSR) ET hydratées par le client. Le même arbre
 // est produit des deux côtés pour garantir une hydratation sans écart.
@@ -14,7 +16,15 @@ export type SsrTarget = 'home' | 'mentions' | 'confidentialite'
  * client (entry-client). Le contenu est fourni explicitement (déjà lu en base) —
  * pas de fetch ici, donc rendu serveur et premier rendu client sont identiques.
  */
-export function AppShell({ target, content }: { target: SsrTarget; content: SiteContent }) {
+export function AppShell({
+  target,
+  content,
+  faq = DEFAULT_FAQ,
+}: {
+  target: SsrTarget
+  content: SiteContent
+  faq?: Faq
+}) {
   const view =
     target === 'home' ? (
       <App />
@@ -23,7 +33,9 @@ export function AppShell({ target, content }: { target: SsrTarget; content: Site
     )
   return (
     <StrictMode>
-      <ContentValue value={content}>{view}</ContentValue>
+      <ContentValue value={content}>
+        <FaqValue value={faq}>{view}</FaqValue>
+      </ContentValue>
       <Analytics />
     </StrictMode>
   )

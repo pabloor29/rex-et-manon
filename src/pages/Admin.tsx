@@ -9,6 +9,7 @@ import {
 import type { Session } from '@supabase/supabase-js'
 import { supabase, supabaseConfigured, authedPost, uploadImage, fetchIsAdmin } from '../lib/supabaseClient'
 import { DEFAULT_OFFERS, normalizeOffers, DEFAULT_PERKS, type Offers, type Zone } from '../offers'
+import { DEFAULT_FAQ, normalizeFaq, type Faq } from '../faq'
 import { DEFAULT_CONTENT, normalizeContent, type Image, type SiteContent } from '../content'
 import { ContentValue } from '../ContentContext'
 import { applyTheme } from '../theme'
@@ -27,13 +28,14 @@ type Status =
   | { kind: 'saved'; at?: string }
   | { kind: 'error'; msg: string }
 
-type Tab = 'contenu' | 'offres' | 'compte'
+type Tab = 'contenu' | 'offres' | 'faq' | 'compte'
 type SectionKey = Exclude<keyof SiteContent, 'updatedAt'>
 type PatchFn = <K extends SectionKey>(key: K, val: Partial<SiteContent[K]>) => void
 
 const TABS: { id: Tab; label: string }[] = [
   { id: 'contenu', label: 'Contenu du site' },
   { id: 'offres', label: 'Offres & tarifs' },
+  { id: 'faq', label: 'FAQ' },
   { id: 'compte', label: 'Compte' },
 ]
 
@@ -220,6 +222,7 @@ export default function Admin() {
           <ContentEditor c={content} patch={patchContent} status={contentStatus} onSave={saveContent} onPreview={setPreview} />
         )}
         {tab === 'offres' && <OffersEditor />}
+        {tab === 'faq' && <FaqEditor />}
         {tab === 'compte' && (
           <div className="space-y-5">
             <Coordonnees c={content} patch={patchContent} status={contentStatus} onSave={saveContent} onPreview={setPreview} />
@@ -572,6 +575,111 @@ function OffersEditor() {
 
       <Card title="Petite note sous les tarifs">
         <Area label="" value={offers.note} onChange={(v) => setOffers((o) => ({ ...o, note: v }))} />
+      </Card>
+
+      <SaveBar status={status} onSave={save} />
+    </div>
+  )
+}
+
+/* ------------------------------------------------------------------ */
+/* Onglet « FAQ »                                                      */
+/* ------------------------------------------------------------------ */
+
+function FaqEditor() {
+  const [faq, setFaq] = useState<Faq>(DEFAULT_FAQ)
+  const [status, setStatus] = useState<Status>({ kind: 'idle' })
+
+  useEffect(() => {
+    fetch('/api/faq')
+      .then((r) => (r.ok ? r.json() : Promise.reject()))
+      .then((d) => setFaq(normalizeFaq(d)))
+      .catch(() => {})
+  }, [])
+
+  function patchItem(i: number, patch: Partial<Faq['items'][number]>) {
+    setFaq((f) => ({ ...f, items: f.items.map((it, j) => (j === i ? { ...it, ...patch } : it)) }))
+  }
+  function addItem() {
+    setFaq((f) => ({ ...f, items: [...f.items, { question: '', answer: '' }] }))
+  }
+  function removeItem(i: number) {
+    setFaq((f) => ({ ...f, items: f.items.filter((_, j) => j !== i) }))
+  }
+  function move(i: number, dir: -1 | 1) {
+    setFaq((f) => {
+      const j = i + dir
+      if (j < 0 || j >= f.items.length) return f
+      const items = [...f.items]
+      ;[items[i], items[j]] = [items[j], items[i]]
+      return { ...f, items }
+    })
+  }
+
+  async function save() {
+    setStatus({ kind: 'saving' })
+    try {
+      const data = await authedPost<{ faq: Faq }>('/api/save-faq', { faq })
+      setFaq(normalizeFaq(data.faq))
+      setStatus({ kind: 'saved', at: data.faq?.updatedAt })
+    } catch (e) {
+      setStatus({ kind: 'error', msg: e instanceof Error ? e.message : 'Échec de l’enregistrement.' })
+    }
+  }
+
+  return (
+    <div className="space-y-5">
+      <Card
+        title="Foire aux questions"
+        desc="Affichée en bas du site. Chaque entrée aide aussi le référencement (Google) : écrivez des questions que vos clients se posent vraiment, avec des réponses claires."
+      >
+        <div className="space-y-4">
+          {faq.items.map((it, i) => (
+            <div key={i} className="rounded-xl bg-cream p-4 ring-1 ring-forest-100">
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-700 text-forest-700">Question {i + 1}</span>
+                <div className="flex items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={() => move(i, -1)}
+                    disabled={i === 0}
+                    className="text-sm font-700 text-forest-600 hover:text-orange-500 disabled:opacity-30"
+                    aria-label="Monter"
+                  >
+                    ↑
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => move(i, 1)}
+                    disabled={i === faq.items.length - 1}
+                    className="text-sm font-700 text-forest-600 hover:text-orange-500 disabled:opacity-30"
+                    aria-label="Descendre"
+                  >
+                    ↓
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => removeItem(i)}
+                    className="text-sm font-700 text-orange-500 hover:underline"
+                  >
+                    Supprimer
+                  </button>
+                </div>
+              </div>
+              <div className="mt-3 space-y-3">
+                <Field label="Question" value={it.question} onChange={(v) => patchItem(i, { question: v })} />
+                <Area label="Réponse" rows={4} value={it.answer} onChange={(v) => patchItem(i, { answer: v })} />
+              </div>
+            </div>
+          ))}
+          <button
+            type="button"
+            onClick={addItem}
+            className="w-full rounded-xl border-2 border-dashed border-forest-200 py-2.5 font-700 text-forest-600 hover:border-orange-400 hover:text-orange-500"
+          >
+            + Ajouter une question
+          </button>
+        </div>
       </Card>
 
       <SaveBar status={status} onSave={save} />

@@ -6,6 +6,7 @@ import Services from './components/Services'
 import Gallery from './components/Gallery'
 import Zones from './components/Zones'
 import Contact from './components/Contact'
+import FAQ from './components/FAQ'
 import Footer from './components/Footer'
 
 export default function App() {
@@ -20,6 +21,7 @@ export default function App() {
         <Gallery />
         <Zones />
         <Contact />
+        <FAQ />
       </main>
       <Footer />
     </div>

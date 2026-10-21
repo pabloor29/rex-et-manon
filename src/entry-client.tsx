@@ -4,7 +4,9 @@ import { Analytics } from '@vercel/analytics/react'
 import './index.css'
 import { AppShell, type SsrTarget } from './AppShell'
 import { ContentProvider } from './ContentContext'
+import { FaqProvider } from './FaqContext'
 import { normalizeContent } from './content'
+import { normalizeFaq } from './faq'
 import { applyTheme } from './theme'
 import App from './App'
 import LegalPage from './pages/Legal'
@@ -37,10 +39,11 @@ if (path === '/admin') {
   if (injected) {
     // Prod : le serveur a rendu le HTML avec ce contenu → on hydrate le même arbre.
     const content = normalizeContent(injected)
+    const faq = normalizeFaq(window.__SSR_FAQ__)
     applyTheme(content.theme)
-    hydrateRoot(root, <AppShell target={target} content={content} />)
+    hydrateRoot(root, <AppShell target={target} content={content} faq={faq} />)
   } else {
-    // Dév / pas de SSR (vite dev) : rendu client-only, contenu chargé via /api/content.
+    // Dév / pas de SSR (vite dev) : rendu client-only, contenu chargé via /api/content et /api/faq.
     const view =
       target === 'home' ? (
         <App />
@@ -49,7 +52,9 @@ if (path === '/admin') {
       )
     createRoot(root).render(
       <StrictMode>
-        <ContentProvider>{view}</ContentProvider>
+        <ContentProvider>
+          <FaqProvider>{view}</FaqProvider>
+        </ContentProvider>
         <Analytics />
       </StrictMode>,
     )

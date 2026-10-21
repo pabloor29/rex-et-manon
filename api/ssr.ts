@@ -3,6 +3,7 @@ import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { DEFAULT_CONTENT, normalizeContent, type SiteContent } from '../src/content.js'
+import { DEFAULT_FAQ, normalizeFaq, type Faq } from '../src/faq.js'
 import { supabaseAdmin, OFFERS_ROW_ID } from '../src/lib/supabaseServer.js'
 import { themeToCssVars } from '../src/theme.js'
 
@@ -11,7 +12,7 @@ type SsrTarget = 'home' | 'mentions' | 'confidentialite'
 // Bundle SSR auto-contenu produit par `vite build --ssr` (React inliné). Importé
 // dynamiquement (chemin opaque) pour que @vercel/node ne tente pas de le compiler :
 // les composants .tsx ne sont pas gérés par sa compilation d'imports.
-type RenderFn = (target: SsrTarget, content: SiteContent) => string
+type RenderFn = (target: SsrTarget, content: SiteContent, faq: Faq) => string
 let RENDER: RenderFn | null = null
 async function loadRender(): Promise<RenderFn> {
   if (RENDER == null) {
@@ -43,6 +44,36 @@ async function loadContent(): Promise<SiteContent> {
   } catch {
     return DEFAULT_CONTENT
   }
+}
+
+/** Lit la FAQ en base (même logique que /api/faq ; ligne vide → exemples par défaut). */
+async function loadFaq(): Promise<Faq> {
+  try {
+    const { data, error } = await supabaseAdmin()
+      .from('faq')
+      .select('items, updated_at')
+      .eq('id', OFFERS_ROW_ID)
+      .single()
+    if (error || !data || !Array.isArray(data.items) || data.items.length === 0) return DEFAULT_FAQ
+    return normalizeFaq({ items: data.items, updatedAt: data.updated_at })
+  } catch {
+    return DEFAULT_FAQ
+  }
+}
+
+/** Balisage JSON-LD FAQPage pour le référencement (données structurées Google). */
+function faqJsonLd(faq: Faq): string {
+  if (!faq.items.length) return ''
+  const schema = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faq.items.map((it) => ({
+      '@type': 'Question',
+      name: it.question,
+      acceptedAnswer: { '@type': 'Answer', text: it.answer },
+    })),
+  }
+  return `<script type="application/ld+json">${JSON.stringify(schema).replace(/</g, '\\u003c')}</script>`
 }
 
 function targetOf(p: unknown): SsrTarget | null {
@@ -78,8 +109,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   try {
     const tmpl = template()
-    const [render, content] = await Promise.all([loadRender(), loadContent()])
-    const appHtml = render(target, content)
+    const [render, content, faq] = await Promise.all([loadRender(), loadContent(), loadFaq()])
+    const appHtml = render(target, content, faq)
 
     // Variables de thème (couleurs de la charte pilotées depuis l'admin) injectées
     // dès le HTML → pas de flash de couleurs avant hydratation.
@@ -88,8 +119,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       .map(([k, v]) => `${k}:${v}`)
       .join(';')}}</style>`
 
-    // Contenu sérialisé pour que le client hydrate exactement le même arbre.
-    const dataScript = `<script>window.__SSR_CONTENT__=${JSON.stringify(content).replace(/</g, '\\u003c')}</script>`
+    // Contenu + FAQ sérialisés pour que le client hydrate exactement le même arbre.
+    const dataScript =
+      `<script>window.__SSR_CONTENT__=${JSON.stringify(content).replace(/</g, '\\u003c')};` +
+      `window.__SSR_FAQ__=${JSON.stringify(faq).replace(/</g, '\\u003c')}</script>`
+
+    // Données structurées FAQPage uniquement sur l'accueil (où la FAQ est rendue).
+    const faqSchema = target === 'home' ? faqJsonLd(faq) : ''
 
     let html = tmpl
     if (target !== 'home') {
@@ -99,7 +135,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         .replace(/<link rel="canonical"[^>]*>/, `<link rel="canonical" href="https://www.rexetmanon.com/${slug}" />`)
     }
     html = html
-      .replace('</head>', `${themeStyle}${dataScript}</head>`)
+      .replace('</head>', `${themeStyle}${dataScript}${faqSchema}</head>`)
       .replace('<div id="root"></div>', `<div id="root">${appHtml}</div>`)
 
     return res.status(200).send(html)
