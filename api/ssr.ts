@@ -82,8 +82,18 @@ function targetOf(p: unknown): SsrTarget | null {
 }
 
 const LEGAL = {
-  mentions: { title: 'Mentions légales — Rex & Manon', slug: 'mentions-legales' },
-  confidentialite: { title: 'Politique de confidentialité — Rex & Manon', slug: 'confidentialite' },
+  mentions: {
+    title: 'Mentions légales — Rex & Manon',
+    slug: 'mentions-legales',
+    description:
+      'Mentions légales de Rex & Manon, promeneur de chien et balades éducatives canines à Carcassonne (Aude) : éditeur du site, hébergement et informations réglementaires.',
+  },
+  confidentialite: {
+    title: 'Politique de confidentialité — Rex & Manon',
+    slug: 'confidentialite',
+    description:
+      'Politique de confidentialité de Rex & Manon (balades éducatives canines à Carcassonne) : données personnelles collectées via le formulaire de contact, finalités et conservation.',
+  },
 } as const
 
 /**
@@ -129,10 +139,19 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     let html = tmpl
     if (target !== 'home') {
-      const { title, slug } = LEGAL[target]
+      const { title, slug, description } = LEGAL[target]
+      const url = `https://www.rexetmanon.com/${slug}`
+      const esc = (s: string) => s.replace(/"/g, '&quot;')
       html = html
         .replace(/<title>[\s\S]*?<\/title>/, `<title>${title}</title>`)
-        .replace(/<link rel="canonical"[^>]*>/, `<link rel="canonical" href="https://www.rexetmanon.com/${slug}" />`)
+        .replace(/<link rel="canonical"[^>]*>/, `<link rel="canonical" href="${url}" />`)
+        // Les pages légales décrivent la page, pas l'offre commerciale : méta dédiées.
+        .replace(/(<meta\s+name="description"\s+content=")[\s\S]*?("\s*\/>)/, `$1${esc(description)}$2`)
+        .replace(/(<meta property="og:title" content=")[^"]*(")/, `$1${esc(title)}$2`)
+        .replace(/(<meta property="og:description" content=")[^"]*(")/, `$1${esc(description)}$2`)
+        .replace(/(<meta property="og:url" content=")[^"]*(")/, `$1${url}$2`)
+        .replace(/(<meta name="twitter:title" content=")[^"]*(")/, `$1${esc(title)}$2`)
+        .replace(/(<meta name="twitter:description" content=")[^"]*(")/, `$1${esc(description)}$2`)
     }
     html = html
       .replace('</head>', `${themeStyle}${dataScript}${faqSchema}</head>`)
